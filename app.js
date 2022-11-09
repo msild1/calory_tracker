@@ -26,6 +26,21 @@ const ItemCtrl = (function (){
         },
         logData: function (){
             return data
+        },
+        addItem: function (name,calories){
+            let ID;
+            if(data.items.length > 0){
+                ID=data.items[data.items.length + 1].id
+                console.log(ID)
+            } else {
+                ID = 0
+            }
+            calories = parseInt(calories);
+            newItem = new Item(ID,name,calories);
+            data.items.push(newItem);
+            console.log(data.items)
+            console.log(newItem)
+            return newItem
         }
     }
 })();
@@ -33,7 +48,10 @@ const ItemCtrl = (function (){
 // UI Controller
 const UICtrl = (function (){
     const UISelectors = {
-        itemList: "#item-list"
+        itemList: "#item-list",
+        itemNameInput: "#item-name",
+        itemCaloriesInput: "#item-calories",
+        addBtn: ".add-btn"
     }
     return {
         populateItemList: function (items) {
@@ -52,19 +70,44 @@ const UICtrl = (function (){
 
             // insert list items
             document.querySelector(UISelectors.itemList).innerHTML = html;
-        }
+        },
+        getSelectors: function (){
+            return UISelectors
+        },
+        getItemInput: function (){
+            return {
+                name:document.querySelector(UISelectors.itemNameInput).value,
+                calories:document.querySelector(UISelectors.itemCaloriesInput).value
+            }
+        },
+
     }
 })();
 
 // App Controller
 const App = (function (){
-    console.log(ItemCtrl.logData())
+    const loadEventListeners = function (){
+        const UISelectors = UICtrl.getSelectors();
+        console.log(UISelectors)
+        document.querySelector(UISelectors.addBtn).addEventListener("click", itemAddSubmit)
+    }
+    // item add submit function
+    const itemAddSubmit = function (event){
+        const input = UICtrl.getItemInput()
+        if(input.name !== "" && input.calories !== ""){
+            const newItem = ItemCtrl.addItem(input.name,input.calories)
+            console.log(newItem)
+        }
+
+        event.preventDefault()
+    }
     return {
         init: function (){
             console.log("Initializing App")
             const items = ItemCtrl.getItems()
             console.log(items)
             UICtrl.populateItemList(items)
+            loadEventListeners();
         }
     }
 })(ItemCtrl,UICtrl);
