@@ -30,7 +30,7 @@ const ItemCtrl = (function (){
         addItem: function (name,calories){
             let ID;
             if(data.items.length > 0){
-                ID=data.items[data.items.length + 1].id
+                ID=data.items[data.items.length - 1].id + 1
                 console.log(ID)
             } else {
                 ID = 0
@@ -38,8 +38,6 @@ const ItemCtrl = (function (){
             calories = parseInt(calories);
             newItem = new Item(ID,name,calories);
             data.items.push(newItem);
-            console.log(data.items)
-            console.log(newItem)
             return newItem
         }
     }
@@ -70,7 +68,7 @@ const UICtrl = (function (){
 
             // insert list items
             document.querySelector(UISelectors.itemList).innerHTML = html;
-        },
+            },
         getSelectors: function (){
             return UISelectors
         },
@@ -80,7 +78,26 @@ const UICtrl = (function (){
                 calories:document.querySelector(UISelectors.itemCaloriesInput).value
             }
         },
-
+        addListItem: function(item){
+            // create li element
+            const li = document.createElement('li');
+            // add class
+            li.className = 'collection-item';
+            // add ID
+            li.id = `item-${item.id}`;
+            // add HTML
+            li.innerHTML = `<strong>${item.name}: </strong> 
+      			<em>${item.calories} Calories</em>
+		    	<a href="#" class="secondary-content">
+		    		<i class="edit-item fa fa-pencil"></i>
+		    	</a>`;
+            // insert item
+            document.querySelector(UISelectors.itemList).insertAdjacentElement('beforeend', li)
+        },
+        clearInput: function (){
+            document.querySelector(UISelectors.itemNameInput).value = "";
+            document.querySelector(UISelectors.itemCaloriesInput).value = "";
+        }
     }
 })();
 
@@ -97,6 +114,8 @@ const App = (function (){
         if(input.name !== "" && input.calories !== ""){
             const newItem = ItemCtrl.addItem(input.name,input.calories)
             console.log(newItem)
+            UICtrl.clearInput()
+            UICtrl.addListItem(newItem)
         }
 
         event.preventDefault()
