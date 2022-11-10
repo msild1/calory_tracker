@@ -1,4 +1,31 @@
 // Storage Controller
+const StorageCtrl = (function(){
+    // public methods
+    return {
+        storeItem: function (item){
+        let items;
+        if(localStorage.getItem("items") === null) {
+            items = [];
+            items.push(item);
+            localStorage.setItem("items", JSON.stringify(items));
+            } else {
+            items = JSON.parse(localStorage.getItem("items"));
+            items.push(item);
+            localStorage.setItem("items", JSON.stringify(items));
+        }
+        },
+        getItemsFromStorage: function(){
+            let items;
+            if(localStorage.getItem('items') === null){
+                items = [];
+            } else {
+                items = JSON.parse(localStorage.getItem('items'));
+            }
+            return items;
+        }
+    }
+
+})();
 
 // Item Controller
 const ItemCtrl = (function (){
@@ -114,25 +141,35 @@ const UICtrl = (function (){
 })();
 
 // App Controller
-const App = (function (){
+const App = (function (ItemCtrl,StorageCtrl,UICtrl){
     const loadEventListeners = function (){
         const UISelectors = UICtrl.getSelectors();
         console.log(UISelectors)
         document.querySelector(UISelectors.addBtn).addEventListener("click", itemAddSubmit)
+        document.addEventListener("DOMContentLoaded",getItemsFromStorage)
     }
     // item add submit function
     const itemAddSubmit = function (event){
         const input = UICtrl.getItemInput()
         if(input.name !== "" && input.calories !== ""){
             const newItem = ItemCtrl.addItem(input.name,input.calories)
-            UICtrl.addListItem(newItem)
-            UICtrl.clearInput()
+            UICtrl.addListItem(newItem);
             const totalCalories = ItemCtrl.getTotalCalories();
             UICtrl.showTotalCalories(totalCalories);
-
+            StorageCtrl.storeItem(newItem)
+            UICtrl.clearInput()
         }
 
         event.preventDefault()
+    }
+    const getItemsFromStorage = function (){
+        const items = StorageCtrl.getItemsFromStorage()
+        items.forEach(function (item){
+            ItemCtrl.addItem(item["name"], item["calories"])
+        })
+        const totalCalories = ItemCtrl.getTotalCalories();
+        UICtrl.showTotalCalories(totalCalories)
+        UICtrl.populateItemList(items)
     }
     return {
         init: function (){
@@ -143,6 +180,6 @@ const App = (function (){
             loadEventListeners();
         }
     }
-})(ItemCtrl,UICtrl);
+})(ItemCtrl,StorageCtrl, UICtrl);
 
 App.init()
