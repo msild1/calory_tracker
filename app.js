@@ -13,9 +13,6 @@ const ItemCtrl = (function (){
     // Data Structure
     const data = {
         items: [
-            {id: 0, name: 'Steak Dinner', calories: 1200},
-            {id: 1, name: 'Cookie', calories: 400},
-            {id: 2, name: 'Eggs', calories: 300}
         ],
         total: 0,
         currentItem: null
@@ -39,7 +36,17 @@ const ItemCtrl = (function (){
             newItem = new Item(ID,name,calories);
             data.items.push(newItem);
             return newItem
-        }
+        },
+        getTotalCalories: function (){
+            let total = 0
+            data.items.forEach(function (item){
+                total = total + item.calories
+                console.log(total)
+            });
+            data.total = total;
+            console.log(data.total)
+            return data.total
+        },
     }
 })();
 
@@ -49,7 +56,8 @@ const UICtrl = (function (){
         itemList: "#item-list",
         itemNameInput: "#item-name",
         itemCaloriesInput: "#item-calories",
-        addBtn: ".add-btn"
+        addBtn: ".add-btn",
+        totalCalories: ".total-calories"
     }
     return {
         populateItemList: function (items) {
@@ -97,6 +105,10 @@ const UICtrl = (function (){
         clearInput: function (){
             document.querySelector(UISelectors.itemNameInput).value = "";
             document.querySelector(UISelectors.itemCaloriesInput).value = "";
+        },
+
+        showTotalCalories: function (totalCalories){
+            document.querySelector(UISelectors.totalCalories).textContent = totalCalories
         }
     }
 })();
@@ -113,9 +125,11 @@ const App = (function (){
         const input = UICtrl.getItemInput()
         if(input.name !== "" && input.calories !== ""){
             const newItem = ItemCtrl.addItem(input.name,input.calories)
-            console.log(newItem)
-            UICtrl.clearInput()
             UICtrl.addListItem(newItem)
+            UICtrl.clearInput()
+            const totalCalories = ItemCtrl.getTotalCalories();
+            UICtrl.showTotalCalories(totalCalories);
+
         }
 
         event.preventDefault()
